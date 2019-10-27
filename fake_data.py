@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
 def generate_coffee():
     start_hour = np.random.randint(8, 21)
@@ -179,4 +181,24 @@ def create_dataset(num_points=1000):
         dataset += [ans + [generate_sleep_score(ans)]]
 
     return dataset
-    
+
+
+
+dataset = create_dataset(100000)
+
+df = pd.DataFrame(data, columns=["Coffee", "Coffee_late", "Exercise", "Exercise late", "Phone activity", "Noise", "Relaxed", "Sleep Score"])
+
+X = df[["Coffee", "Coffee_late", "Exercise", "Exercise late", "Phone activity", "Noise", "Relaxed"]].values
+y = df["Sleep Score"].values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+regr = RandomForestRegressor(max_depth=15, n_estimators=1000)
+regr.fit(X_train, y_train)
+
+print(regr.feature_importances_)
+print(regr.score(X_test, y_test))
+
+for i in range(100):
+    ans = generate_anwsers()
+    ans2 = [ans]
+    print("Prediction:", regr.predict(ans2), ", True:", generate_sleep_score(ans))
